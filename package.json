@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "base64topdf": "^1.1.8",
+    "basic-auth": "^2.0.1",
+    "express": "^4.17.3",
+    "file-system": "^2.2.2",
+    "node-fetch": "^2.6.7"
+  }
+}

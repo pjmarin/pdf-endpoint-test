@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HTML 5 Boilerplate</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <button id="render">Render PDF</button>
+  <button id="renderWithFileSystem">Render with Filesystem</button>
+  <button id="getPdfStream">getPdfStream</button>
+  <button id="getPdfStreamOnlySmallFiles">getPdfStreamOnlySmallFiles</button>
+  <button id="getPdfMinimalCodeWorking">getPdfMinimalCodeWorking</button>
+  <button id="download">Download PDF</button>
+  <button id="getPdfTest2">getPdfTest2</button>
+  <iframe id="pdfviewer" src="" type="application/pdf"  width="100%" height="800px"></iframe>
+  <body>
+	<script>		
+		function arrayBufferToBase64( buffer ) {
+			var binary = '';
+			var bytes = new Uint8Array( buffer );
+			var len = bytes.byteLength;
+			for (var i = 0; i < len; i++) {
+				binary += String.fromCharCode( bytes[ i ] );
+			}
+			return window.btoa( binary );
+
+		}
+
+		//document.querySelector("button#render").addEventListener("click", async function(e) {
+		//});
+		
+		[...document.querySelectorAll("button")].forEach(el => el.addEventListener('click', async function (e) {		
+			let url, receiveType;
+			
+			switch(e.target.id) {
+				case "render": {
+					url = '/getPdfOnTheFly';
+					receiveType = 'inline';
+					break;
+				}
+				
+				case "renderWithFileSystem": {
+					url = '/getPdf';
+					receiveType = 'inline';
+					break;
+				}
+				
+				case "download": {
+					url = '/downloadPdf';
+					receiveType = 'attachment';
+					break;
+				}
+				
+				case "getPdfStream": {
+					url = '/getPdfStream';
+					receiveType = 'inline';
+					break;
+				}
+				
+				case "getPdfStreamOnlySmallFiles": {
+					url = '/getPdfStreamOnlySmallFiles';
+					receiveType = 'inline';
+					break;
+				}
+				
+				case "getPdfMinimalCodeWorking": {
+					url = '/getPdfMinimalCodeWorking';
+					receiveType = 'inline';
+					break;
+				}
+				
+				case "getPdfTest2": {
+					url = '/getPdfTest2';
+					receiveType = 'inline';
+					break;
+				}
+			}
+			
+			//e.target.id === 'render' ? url = '/getPdfOnTheFly' : url = '/getPdf';
+			const respuesta = await fetch(url, {headers:{"Content-Type":"application/pdf"}});
+			const arrBuffer = await respuesta.arrayBuffer();
+			
+			if(receiveType === 'inline') {
+				// working with small files
+				
+				/*const arrayBufferString = arrayBufferToBase64(arrBuffer);
+				const arrayBufferStringBase64 = 'data:application/pdf;base64,' + arrayBufferString;				
+				const respuesta2 = window.btoa(respuesta);				
+				document.querySelector("#pdfviewer").setAttribute("src", arrayBufferStringBase64);*/				
+				
+				
+				
+				// working with all files
+				const arrayBufferString = arrayBufferToBase64(arrBuffer);
+				const arrayBufferStringBase64 = 'data:application/pdf;base64,' + arrayBufferString;
+				
+				const blobPdfFromBase64String = base64String => {
+				   const byteArray = Uint8Array.from(
+					 atob(base64String)
+					   .split('')
+					   .map(char => char.charCodeAt(0))
+				   );
+				  return new Blob([byteArray], { type: 'application/pdf' });
+				};
+				
+				const myVarblobPdfFromBase64String = blobPdfFromBase64String(arrayBufferString);
+				const fileURL = URL.createObjectURL(myVarblobPdfFromBase64String);
+				
+				
+				// Mostrar inline
+				document.querySelector("#pdfviewer").setAttribute("src", fileURL);
+				
+				
+				// Forzar descarga
+				//const link = document.createElement("a");
+				//link.href = fileURL;
+				//link.download = "fileNameDecoded.pdf";
+				//link.click();
+				//// document.body.removeChild(link);
+				//URL.revokeObjectURL(fileURL);
+			} else {
+				const file = new Blob([arrBuffer], { type: 'application/pdf' });
+				const fileURL = URL.createObjectURL(file);
+				const link = document.createElement("a");
+				link.href = fileURL;
+				link.download = "fileNameDecoded.pdf";
+				link.click();
+				// document.body.removeChild(link);
+				URL.revokeObjectURL(fileURL);
+			}
+			
+			
+			
+			/*var obj = document.createElement('object');
+			obj.style.width = '100%';
+			obj.style.height = '842pt';
+			obj.type = 'application/pdf';
+			obj.data = arrayBufferStringBase64;
+			document.body.appendChild(obj);*/		
+		}));
+		
+		
+		/*document.querySelector("button#download").addEventListener("click", async function(e) {
+			const respuesta = await fetch('/downloadPdf', {headers:{"Content-Type":"application/pdf"}});
+			const arrBuffer = await respuesta.arrayBuffer();
+			
+			const file = new Blob([arrBuffer], { type: 'application/pdf' });
+			const fileURL = URL.createObjectURL(file);
+			const link = document.createElement("a");
+			link.href = fileURL;
+			link.download = "fileNameDecoded.pdf";
+			link.click();
+			// document.body.removeChild(link);
+			URL.revokeObjectURL(fileURL);
+		});*/
+	</script>
+  </body>
+</html>
